@@ -75,6 +75,16 @@ src/
 
 The Cursor Background Agent should continue working until ALL tasks are complete. See `.cursor/instructions.md` for detailed continuation prompts if the agent hits limits.
 
+### Quality Assurance Loop
+After development is complete, a quality loop ensures perfect code:
+
+1. **Cursor Agent** completes all tasks
+2. **Claude Code** performs comprehensive review
+3. **Cursor Agent** fixes all identified issues  
+4. **Loop continues** until both find NO ERRORS for 2 consecutive rounds
+
+See `.cursor/quality-loop.md` and `.cursor/review-commands.md` for details.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

@@ -101,3 +101,17 @@ The agent should only consider the job COMPLETE when:
 
 ## IMPORTANT
 **The agent MUST continue working across multiple sessions if needed. This is a complex app that requires persistent development until completion.**
+
+## Quality Assurance Loop
+After completing all development tasks:
+
+1. **Declare completion:** "Development phase complete. Ready for Claude Code review."
+2. **Wait for Claude Code review report**
+3. **Fix ALL issues identified by Claude Code**
+4. **Test thoroughly after each fix**
+5. **Declare:** "Corrections complete. Ready for re-review."
+6. **Repeat until Claude Code finds NO ERRORS**
+
+**ONLY STOP when both you and Claude Code agree there are no errors for 2 consecutive review rounds.**
+
+See `.cursor/quality-loop.md` for detailed process.
