@@ -1,0 +1,89 @@
+# Task ID: 6
+# Title: 3D Avatar Integration with TalkingHead and Ready Player Me
+# Status: pending
+# Dependencies: 5
+# Priority: medium
+# Description: Implement the 3D avatar rendering and lip-sync animation using TalkingHead and Ready Player Me.
+# Details:
+1. Create a `MascotViewer.js` component for 3D avatar rendering:
+   ```jsx
+   import React, { useRef, useEffect } from 'react';
+   import { Canvas } from '@react-three/fiber';
+   import { OrbitControls, useGLTF } from '@react-three/drei';
+   import * as THREE from 'three';
+   
+   // Import TalkingHead library via script tag in _document.js
+   // <script src="https://unpkg.com/talking-head@latest/dist/talking-head.min.js"></script>
+   
+   const AvatarModel = ({ modelUrl }) => {
+     const gltf = useGLTF(modelUrl);
+     const modelRef = useRef();
+     const talkingHeadRef = useRef(null);
+     
+     useEffect(() => {
+       if (gltf.scene && !talkingHeadRef.current) {
+         // Initialize TalkingHead with the loaded model
+         talkingHeadRef.current = new window.TalkingHead(gltf.scene);
+       }
+       
+       return () => {
+         if (talkingHeadRef.current) {
+           talkingHeadRef.current.dispose();
+         }
+       };
+     }, [gltf]);
+     
+     // Function to be called when audio is ready to play
+     const speakWithLipSync = async (audioElement, audioBase64) => {
+       if (talkingHeadRef.current) {
+         await talkingHeadRef.current.speakAudio(audioElement);
+       }
+     };
+     
+     return (
+       <primitive 
+         object={gltf.scene} 
+         ref={modelRef} 
+         position={[0, -1, 0]} 
+         scale={[1, 1, 1]} 
+       />
+     );
+   };
+   
+   const MascotViewer = ({ speakingState, onLipSyncReady }) => {
+     const avatarRef = useRef();
+     
+     // Ready Player Me avatar URL - cat character
+     const avatarUrl = 'https://models.readyplayer.me/64f7bf9a7c08d9e6a3c5ac6e.glb';
+     
+     return (
+       <div className="mascot-container">
+         <Canvas
+           camera={{ position: [0, 0, 5], fov: 50 }}
+           style={{ height: '500px', width: '100%' }}
+         >
+           <ambientLight intensity={0.5} />
+           <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
+           <AvatarModel 
+             modelUrl={avatarUrl} 
+             ref={avatarRef} 
+           />
+           <OrbitControls enableZoom={false} enablePan={false} />
+         </Canvas>
+       </div>
+     );
+   };
+   
+   export default MascotViewer;
+   ```
+2. Implement the TalkingHead integration for lip-sync processing
+3. Configure Ready Player Me avatar loading with cat character
+4. Set up Three.js rendering with proper lighting and camera settings
+5. Implement idle animation state for when not speaking
+
+# Test Strategy:
+1. Test 3D model loading and rendering performance
+2. Verify lip-sync accuracy with various audio samples
+3. Test on different devices to ensure WebGL compatibility
+4. Measure memory usage and optimize if needed
+5. Verify idle animation transitions smoothly to speaking state

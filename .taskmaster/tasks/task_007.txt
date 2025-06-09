@@ -1,0 +1,108 @@
+# Task ID: 7
+# Title: Main Application Component Integration
+# Status: pending
+# Dependencies: 2, 6
+# Priority: medium
+# Description: Create the main application component that integrates all the individual components into a cohesive user experience.
+# Details:
+1. Create the main application component in `pages/index.js`:
+   ```jsx
+   import { useState, useRef } from 'react';
+   import MicrophoneButton from '../components/MicrophoneButton';
+   import MascotViewer from '../components/MascotViewer';
+   import { playAudio } from '../utils/audioUtils';
+   
+   export default function Home() {
+     const [transcript, setTranscript] = useState('');
+     const [processing, setProcessing] = useState(false);
+     const [mascotState, setMascotState] = useState('idle'); // idle, listening, thinking, speaking
+     const [totalPlaybackTime, setTotalPlaybackTime] = useState(0);
+     const audioRef = useRef(null);
+     const mascotRef = useRef(null);
+     
+     const handleTranscriptComplete = async (text) => {
+       if (!text) return;
+       
+       setTranscript(text);
+       setProcessing(true);
+       setMascotState('thinking');
+       
+       try {
+         // Send transcript to API
+         const response = await fetch('/api/chat-to-audio', {
+           method: 'POST',
+           headers: {
+             'Content-Type': 'application/json',
+           },
+           body: JSON.stringify({ text }),
+         });
+         
+         if (!response.ok) {
+           throw new Error('Failed to get response');
+         }
+         
+         const data = await response.json();
+         setProcessing(false);
+         setMascotState('speaking');
+         
+         // Play audio with lip-sync
+         const audio = await playAudio(data.audio);
+         audioRef.current = audio;
+         
+         // Update total playback time
+         const duration = await new Promise(resolve => {
+           audio.onended = () => {
+             setMascotState('idle');
+             resolve(audio.duration);
+           };
+         });
+         
+         setTotalPlaybackTime(prev => prev + duration);
+       } catch (error) {
+         console.error('Error:', error);
+         setProcessing(false);
+         setMascotState('idle');
+       }
+     };
+     
+     return (
+       <div className="app-container">
+         <h1>Talk to Your Pet Friend</h1>
+         
+         <div className="mascot-section">
+           <MascotViewer 
+             speakingState={mascotState} 
+             ref={mascotRef}
+           />
+         </div>
+         
+         <div className="controls-section">
+           <MicrophoneButton onTranscriptComplete={handleTranscriptComplete} />
+           
+           {transcript && (
+             <div className="transcript">
+               <p>You said: {transcript}</p>
+             </div>
+           )}
+           
+           {processing && (
+             <div className="processing-indicator">
+               <p>Thinking...</p>
+             </div>
+           )}
+         </div>
+       </div>
+     );
+   }
+   ```
+2. Implement state management for the conversation flow
+3. Add visual feedback for different mascot states (idle, listening, thinking, speaking)
+4. Connect the microphone button to the API processing pipeline
+5. Implement proper error handling and loading states
+
+# Test Strategy:
+1. Test the complete conversation flow from voice input to animated response
+2. Verify state transitions between idle, listening, thinking, and speaking
+3. Test error handling for various failure scenarios
+4. Verify visual feedback accurately reflects current state
+5. Test responsiveness on different screen sizes

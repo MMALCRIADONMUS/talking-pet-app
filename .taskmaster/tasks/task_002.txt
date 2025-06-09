@@ -1,0 +1,85 @@
+# Task ID: 2
+# Title: Voice Capture & Transcription System
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Implement the microphone button component and voice transcription functionality using Web Speech API.
+# Details:
+1. Create a `MicrophoneButton.js` component with the following features:
+   - Large, child-friendly button design
+   - Visual feedback for recording state
+   - Integration with react-speech-recognition
+2. Implement the Web Speech API integration:
+   ```jsx
+   import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+   
+   const MicrophoneButton = ({ onTranscriptComplete }) => {
+     const { transcript, listening, resetTranscript } = useSpeechRecognition();
+     
+     const handleStartListening = () => {
+       resetTranscript();
+       SpeechRecognition.startListening();
+     };
+     
+     const handleStopListening = () => {
+       SpeechRecognition.stopListening();
+       if (transcript) {
+         onTranscriptComplete(transcript);
+       }
+     };
+     
+     return (
+       <button 
+         className={`mic-button ${listening ? 'recording' : ''}`}
+         onMouseDown={handleStartListening}
+         onMouseUp={handleStopListening}
+         onTouchStart={handleStartListening}
+         onTouchEnd={handleStopListening}
+       >
+         {listening ? 'Listening...' : 'Talk to Pet'}
+       </button>
+     );
+   };
+   ```
+3. Add visual feedback indicators for recording state
+4. Implement fallback for browsers without Web Speech API support
+5. Add error handling for microphone access permissions
+
+# Test Strategy:
+1. Test microphone access on different browsers
+2. Verify speech-to-text conversion accuracy
+3. Test visual feedback during recording state
+4. Confirm transcript is correctly passed to parent component
+5. Test touch and mouse interactions for mobile/desktop compatibility
+
+# Subtasks:
+## 1. Create MicrophoneButton Component Structure [in-progress]
+### Dependencies: None
+### Description: Create the basic structure of the MicrophoneButton component with React hooks for speech recognition integration.
+### Details:
+Create a new file MicrophoneButton.js that imports react-speech-recognition and sets up the component with useSpeechRecognition hook. Implement the basic button structure with placeholder event handlers for starting and stopping listening. Export the component for use in other parts of the application.
+
+## 2. Implement Speech Recognition Functionality [pending]
+### Dependencies: None
+### Description: Add the core speech recognition functionality to the MicrophoneButton component using the Web Speech API.
+### Details:
+Implement handleStartListening and handleStopListening functions that control the speech recognition process. Use resetTranscript to clear previous input when starting new recording. Ensure the transcript is passed to the parent component via the onTranscriptComplete callback when recording stops.
+
+## 3. Add Visual Feedback and Styling [pending]
+### Dependencies: 2.2
+### Description: Enhance the MicrophoneButton with visual feedback for recording states and child-friendly styling.
+### Details:
+Create CSS styles for the mic-button class with different states (normal, recording, error). Add animations or visual indicators that show when the microphone is active. Ensure the button is large enough for children to use easily. Consider adding microphone icons or other visual elements to make the purpose clear.
+
+## 4. Implement Error Handling for Microphone Access [pending]
+### Dependencies: 2.3
+### Description: Add error handling for cases where microphone access is denied or unavailable.
+### Details:
+Create error states and user feedback for common issues: browser permission denied, no microphone detected, or other hardware/software limitations. Implement a try-catch mechanism around SpeechRecognition calls and provide meaningful error messages to users. Add a method to request microphone permissions explicitly if needed.
+
+## 5. Add Browser Compatibility and Fallbacks [pending]
+### Dependencies: 2.3
+### Description: Ensure the component works across different browsers and provide fallbacks for unsupported browsers.
+### Details:
+Check browser compatibility before attempting to use SpeechRecognition. For unsupported browsers, provide an alternative input method (e.g., text input). Use feature detection rather than browser detection. Consider adding a polyfill for broader compatibility. Add clear messaging when speech recognition isn't available.
+

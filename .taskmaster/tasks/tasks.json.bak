@@ -1,0 +1,190 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Next.js Project Setup with Environment Configuration",
+      "description": "Initialize a Next.js project with React and configure all required environment variables for API integrations.",
+      "details": "1. Create a new Next.js project using `npx create-next-app@latest talking-pet-app`\n2. Set up project structure with folders for components, pages, utils, and public assets\n3. Configure environment variables in .env.local file for all required API keys:\n   - OPENAI_API_KEY\n   - ELEVENLABS_KEY\n   - ELEVEN_VOICE_ID\n   - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY\n4. Install required dependencies:\n   ```bash\n   npm install openai react-speech-recognition @stripe/stripe-js three @react-three/fiber @react-three/drei\n   ```\n5. Create basic file structure as specified in PRD\n6. Set up environment variable validation in a utils file\n7. Configure Next.js for API routes and server-side rendering",
+      "testStrategy": "1. Verify project builds without errors\n2. Confirm environment variables are properly loaded and validated\n3. Test basic page routing\n4. Ensure all dependencies are correctly installed and accessible",
+      "priority": "high",
+      "dependencies": [],
+      "status": "done",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Initialize Next.js Project and Setup Basic Structure",
+          "description": "Create a new Next.js project and set up the basic folder structure for the application.",
+          "dependencies": [],
+          "details": "Run `npx create-next-app@latest talking-pet-app` to initialize the project. Create the following directory structure: components/, pages/, utils/, public/assets/. Initialize a basic .gitignore file and README.md. Set up the basic Next.js configuration in next.config.js.",
+          "status": "done",
+          "testStrategy": "Verify the project builds successfully with `npm run dev` and check that the directory structure is correctly established."
+        },
+        {
+          "id": 2,
+          "title": "Install Required Dependencies",
+          "description": "Install all the necessary npm packages required for the project functionality.",
+          "dependencies": [
+            1
+          ],
+          "details": "Run `npm install openai react-speech-recognition @stripe/stripe-js three @react-three/fiber @react-three/drei`. Verify package.json contains all dependencies. Update any core dependencies if needed. Configure any specific package settings in appropriate configuration files.",
+          "status": "done",
+          "testStrategy": "Verify all packages are correctly installed by checking package.json and node_modules. Test importing key packages in a sample component."
+        },
+        {
+          "id": 3,
+          "title": "Configure Environment Variables",
+          "description": "Set up environment variables for API integrations and create validation utilities.",
+          "dependencies": [
+            1
+          ],
+          "details": "Create a .env.local file with placeholders for OPENAI_API_KEY, ELEVENLABS_KEY, ELEVEN_VOICE_ID, and NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY. Create a utils/env.js file to validate environment variables on startup. Add .env.local to .gitignore. Create a .env.example file with the required variable names but no values for documentation.",
+          "status": "done",
+          "testStrategy": "Create a simple test script that validates all environment variables are accessible. Test both server-side and client-side environment variable access."
+        },
+        {
+          "id": 4,
+          "title": "Set Up API Routes Structure",
+          "description": "Configure the Next.js API routes for backend functionality and external API integrations.",
+          "dependencies": [
+            2,
+            3
+          ],
+          "details": "Create pages/api/ directory with initial route files for OpenAI integration, ElevenLabs voice generation, and Stripe payment processing. Set up basic handler functions with proper error handling and response formatting. Implement middleware for API route protection if needed.",
+          "status": "done",
+          "testStrategy": "Create simple tests for each API route that verify proper response formats. Test error handling by sending invalid requests."
+        },
+        {
+          "id": 5,
+          "title": "Implement Server-Side Rendering Configuration",
+          "description": "Configure Next.js for optimal server-side rendering and static generation based on project requirements.",
+          "dependencies": [
+            4
+          ],
+          "details": "Configure getServerSideProps or getStaticProps in relevant page components. Set up any required data fetching utilities in utils/api.js. Configure Next.js caching strategies in next.config.js. Implement any required middleware for authentication or request processing. Set up proper error boundaries for SSR failures.",
+          "status": "done",
+          "testStrategy": "Test server-side rendering by disabling JavaScript and verifying content still appears. Verify API data is correctly pre-rendered by examining page source."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Voice Capture & Transcription System",
+      "description": "Implement the microphone button component and voice transcription functionality using Web Speech API.",
+      "details": "1. Create a `MicrophoneButton.js` component with the following features:\n   - Large, child-friendly button design\n   - Visual feedback for recording state\n   - Integration with react-speech-recognition\n2. Implement the Web Speech API integration:\n   ```jsx\n   import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';\n   \n   const MicrophoneButton = ({ onTranscriptComplete }) => {\n     const { transcript, listening, resetTranscript } = useSpeechRecognition();\n     \n     const handleStartListening = () => {\n       resetTranscript();\n       SpeechRecognition.startListening();\n     };\n     \n     const handleStopListening = () => {\n       SpeechRecognition.stopListening();\n       if (transcript) {\n         onTranscriptComplete(transcript);\n       }\n     };\n     \n     return (\n       <button \n         className={`mic-button ${listening ? 'recording' : ''}`}\n         onMouseDown={handleStartListening}\n         onMouseUp={handleStopListening}\n         onTouchStart={handleStartListening}\n         onTouchEnd={handleStopListening}\n       >\n         {listening ? 'Listening...' : 'Talk to Pet'}\n       </button>\n     );\n   };\n   ```\n3. Add visual feedback indicators for recording state\n4. Implement fallback for browsers without Web Speech API support\n5. Add error handling for microphone access permissions",
+      "testStrategy": "1. Test microphone access on different browsers\n2. Verify speech-to-text conversion accuracy\n3. Test visual feedback during recording state\n4. Confirm transcript is correctly passed to parent component\n5. Test touch and mouse interactions for mobile/desktop compatibility",
+      "priority": "high",
+      "dependencies": [
+        1
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 3,
+      "title": "AI Conversation Engine with OpenAI GPT-4o Integration",
+      "description": "Create the API route for processing user input through OpenAI GPT-4o and generating child-friendly responses.",
+      "details": "1. Create `/pages/api/chat-to-audio.js` API route\n2. Implement OpenAI GPT-4o integration:\n   ```javascript\n   import { OpenAI } from 'openai';\n   \n   export default async function handler(req, res) {\n     if (req.method !== 'POST') {\n       return res.status(405).json({ error: 'Method not allowed' });\n     }\n     \n     const { text } = req.body;\n     \n     if (!text) {\n       return res.status(400).json({ error: 'Text input is required' });\n     }\n     \n     try {\n       const openai = new OpenAI({\n         apiKey: process.env.OPENAI_API_KEY,\n       });\n       \n       const completion = await openai.chat.completions.create({\n         model: 'gpt-4o',\n         messages: [\n           {\n             role: 'system',\n             content: 'You are a friendly, educational cartoon cat talking to a child aged 4-12. Keep responses positive, simple, age-appropriate, and under 3 sentences. Be playful, curious, and encouraging.'\n           },\n           { role: 'user', content: text }\n         ],\n         max_tokens: 150,\n         temperature: 0.7,\n       });\n       \n       const response = completion.choices[0].message.content;\n       \n       // Next step will be to convert this text to speech\n       // For now, just return the text response\n       return res.status(200).json({ text: response });\n     } catch (error) {\n       console.error('OpenAI API error:', error);\n       return res.status(500).json({ error: 'Failed to generate response' });\n     }\n   }\n   ```\n3. Add system prompts to ensure child-friendly responses\n4. Implement error handling and rate limiting\n5. Add logging for monitoring API usage",
+      "testStrategy": "1. Test API endpoint with various child-appropriate questions\n2. Verify response content is age-appropriate and friendly\n3. Test error handling with invalid inputs\n4. Measure response time and optimize if needed\n5. Verify API key security and proper environment variable usage",
+      "priority": "high",
+      "dependencies": [
+        1
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 4,
+      "title": "Text-to-Speech Integration with ElevenLabs",
+      "description": "Extend the API route to convert GPT-4o text responses into high-quality speech using ElevenLabs TTS API.",
+      "details": "1. Enhance the `/pages/api/chat-to-audio.js` endpoint to include ElevenLabs TTS:\n   ```javascript\n   // After getting the text response from OpenAI\n   const response = completion.choices[0].message.content;\n   \n   // Convert text to speech using ElevenLabs\n   const elevenLabsResponse = await fetch(\n     `https://api.elevenlabs.io/v1/text-to-speech/${process.env.ELEVEN_VOICE_ID}`,\n     {\n       method: 'POST',\n       headers: {\n         'Content-Type': 'application/json',\n         'xi-api-key': process.env.ELEVENLABS_KEY,\n       },\n       body: JSON.stringify({\n         text: response,\n         model_id: 'eleven_monolingual_v1',\n         voice_settings: {\n           stability: 0.5,\n           similarity_boost: 0.75,\n         },\n       }),\n     }\n   );\n   \n   if (!elevenLabsResponse.ok) {\n     throw new Error(`ElevenLabs API error: ${elevenLabsResponse.statusText}`);\n   }\n   \n   const audioBuffer = await elevenLabsResponse.arrayBuffer();\n   const audioBase64 = Buffer.from(audioBuffer).toString('base64');\n   \n   return res.status(200).json({\n     text: response,\n     audio: audioBase64,\n   });\n   ```\n2. Configure audio quality settings for 44.1kHz MP3 output\n3. Implement proper error handling for TTS API failures\n4. Add caching mechanism for frequently used responses to reduce API calls\n5. Ensure consistent voice ID usage for character continuity",
+      "testStrategy": "1. Test TTS conversion with various text inputs\n2. Verify audio quality meets 44.1kHz specification\n3. Test error handling when ElevenLabs API is unavailable\n4. Measure response time for the complete text-to-speech pipeline\n5. Verify Base64 encoding works correctly for frontend playback",
+      "priority": "high",
+      "dependencies": [
+        3
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 5,
+      "title": "Audio Playback System with HTML5 Audio",
+      "description": "Implement the frontend audio playback system using HTML5 Audio API to play the generated speech.",
+      "details": "1. Create an `audioUtils.js` utility file with playback functions:\n   ```javascript\n   export const playAudio = (base64Audio) => {\n     return new Promise((resolve, reject) => {\n       try {\n         // Convert base64 to blob\n         const byteCharacters = atob(base64Audio);\n         const byteNumbers = new Array(byteCharacters.length);\n         \n         for (let i = 0; i < byteCharacters.length; i++) {\n           byteNumbers[i] = byteCharacters.charCodeAt(i);\n         }\n         \n         const byteArray = new Uint8Array(byteNumbers);\n         const blob = new Blob([byteArray], { type: 'audio/mp3' });\n         const audioUrl = URL.createObjectURL(blob);\n         \n         // Create and play audio element\n         const audio = new Audio(audioUrl);\n         \n         // Track playback duration for usage monitoring\n         let playbackDuration = 0;\n         const durationInterval = setInterval(() => {\n           playbackDuration += 0.1;\n           // This will be used later for usage tracking\n         }, 100);\n         \n         audio.onended = () => {\n           clearInterval(durationInterval);\n           URL.revokeObjectURL(audioUrl);\n           resolve(playbackDuration);\n         };\n         \n         audio.onerror = (error) => {\n           clearInterval(durationInterval);\n           URL.revokeObjectURL(audioUrl);\n           reject(error);\n         };\n         \n         audio.play();\n         return audio; // Return audio element for lip-sync control\n       } catch (error) {\n         reject(error);\n       }\n     });\n   };\n   ```\n2. Implement audio buffering for smooth playback\n3. Add volume control functionality\n4. Create event handlers for tracking playback state\n5. Implement error handling for audio playback failures",
+      "testStrategy": "1. Test audio playback with various MP3 samples\n2. Verify audio quality and playback performance\n3. Test error handling for corrupted audio data\n4. Verify playback duration tracking accuracy\n5. Test on multiple browsers and devices for compatibility",
+      "priority": "medium",
+      "dependencies": [
+        4
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 6,
+      "title": "3D Avatar Integration with TalkingHead and Ready Player Me",
+      "description": "Implement the 3D avatar rendering and lip-sync animation using TalkingHead and Ready Player Me.",
+      "details": "1. Create a `MascotViewer.js` component for 3D avatar rendering:\n   ```jsx\n   import React, { useRef, useEffect } from 'react';\n   import { Canvas } from '@react-three/fiber';\n   import { OrbitControls, useGLTF } from '@react-three/drei';\n   import * as THREE from 'three';\n   \n   // Import TalkingHead library via script tag in _document.js\n   // <script src=\"https://unpkg.com/talking-head@latest/dist/talking-head.min.js\"></script>\n   \n   const AvatarModel = ({ modelUrl }) => {\n     const gltf = useGLTF(modelUrl);\n     const modelRef = useRef();\n     const talkingHeadRef = useRef(null);\n     \n     useEffect(() => {\n       if (gltf.scene && !talkingHeadRef.current) {\n         // Initialize TalkingHead with the loaded model\n         talkingHeadRef.current = new window.TalkingHead(gltf.scene);\n       }\n       \n       return () => {\n         if (talkingHeadRef.current) {\n           talkingHeadRef.current.dispose();\n         }\n       };\n     }, [gltf]);\n     \n     // Function to be called when audio is ready to play\n     const speakWithLipSync = async (audioElement, audioBase64) => {\n       if (talkingHeadRef.current) {\n         await talkingHeadRef.current.speakAudio(audioElement);\n       }\n     };\n     \n     return (\n       <primitive \n         object={gltf.scene} \n         ref={modelRef} \n         position={[0, -1, 0]} \n         scale={[1, 1, 1]} \n       />\n     );\n   };\n   \n   const MascotViewer = ({ speakingState, onLipSyncReady }) => {\n     const avatarRef = useRef();\n     \n     // Ready Player Me avatar URL - cat character\n     const avatarUrl = 'https://models.readyplayer.me/64f7bf9a7c08d9e6a3c5ac6e.glb';\n     \n     return (\n       <div className=\"mascot-container\">\n         <Canvas\n           camera={{ position: [0, 0, 5], fov: 50 }}\n           style={{ height: '500px', width: '100%' }}\n         >\n           <ambientLight intensity={0.5} />\n           <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />\n           <AvatarModel \n             modelUrl={avatarUrl} \n             ref={avatarRef} \n           />\n           <OrbitControls enableZoom={false} enablePan={false} />\n         </Canvas>\n       </div>\n     );\n   };\n   \n   export default MascotViewer;\n   ```\n2. Implement the TalkingHead integration for lip-sync processing\n3. Configure Ready Player Me avatar loading with cat character\n4. Set up Three.js rendering with proper lighting and camera settings\n5. Implement idle animation state for when not speaking",
+      "testStrategy": "1. Test 3D model loading and rendering performance\n2. Verify lip-sync accuracy with various audio samples\n3. Test on different devices to ensure WebGL compatibility\n4. Measure memory usage and optimize if needed\n5. Verify idle animation transitions smoothly to speaking state",
+      "priority": "medium",
+      "dependencies": [
+        5
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 7,
+      "title": "Main Application Component Integration",
+      "description": "Create the main application component that integrates all the individual components into a cohesive user experience.",
+      "details": "1. Create the main application component in `pages/index.js`:\n   ```jsx\n   import { useState, useRef } from 'react';\n   import MicrophoneButton from '../components/MicrophoneButton';\n   import MascotViewer from '../components/MascotViewer';\n   import { playAudio } from '../utils/audioUtils';\n   \n   export default function Home() {\n     const [transcript, setTranscript] = useState('');\n     const [processing, setProcessing] = useState(false);\n     const [mascotState, setMascotState] = useState('idle'); // idle, listening, thinking, speaking\n     const [totalPlaybackTime, setTotalPlaybackTime] = useState(0);\n     const audioRef = useRef(null);\n     const mascotRef = useRef(null);\n     \n     const handleTranscriptComplete = async (text) => {\n       if (!text) return;\n       \n       setTranscript(text);\n       setProcessing(true);\n       setMascotState('thinking');\n       \n       try {\n         // Send transcript to API\n         const response = await fetch('/api/chat-to-audio', {\n           method: 'POST',\n           headers: {\n             'Content-Type': 'application/json',\n           },\n           body: JSON.stringify({ text }),\n         });\n         \n         if (!response.ok) {\n           throw new Error('Failed to get response');\n         }\n         \n         const data = await response.json();\n         setProcessing(false);\n         setMascotState('speaking');\n         \n         // Play audio with lip-sync\n         const audio = await playAudio(data.audio);\n         audioRef.current = audio;\n         \n         // Update total playback time\n         const duration = await new Promise(resolve => {\n           audio.onended = () => {\n             setMascotState('idle');\n             resolve(audio.duration);\n           };\n         });\n         \n         setTotalPlaybackTime(prev => prev + duration);\n       } catch (error) {\n         console.error('Error:', error);\n         setProcessing(false);\n         setMascotState('idle');\n       }\n     };\n     \n     return (\n       <div className=\"app-container\">\n         <h1>Talk to Your Pet Friend</h1>\n         \n         <div className=\"mascot-section\">\n           <MascotViewer \n             speakingState={mascotState} \n             ref={mascotRef}\n           />\n         </div>\n         \n         <div className=\"controls-section\">\n           <MicrophoneButton onTranscriptComplete={handleTranscriptComplete} />\n           \n           {transcript && (\n             <div className=\"transcript\">\n               <p>You said: {transcript}</p>\n             </div>\n           )}\n           \n           {processing && (\n             <div className=\"processing-indicator\">\n               <p>Thinking...</p>\n             </div>\n           )}\n         </div>\n       </div>\n     );\n   }\n   ```\n2. Implement state management for the conversation flow\n3. Add visual feedback for different mascot states (idle, listening, thinking, speaking)\n4. Connect the microphone button to the API processing pipeline\n5. Implement proper error handling and loading states",
+      "testStrategy": "1. Test the complete conversation flow from voice input to animated response\n2. Verify state transitions between idle, listening, thinking, and speaking\n3. Test error handling for various failure scenarios\n4. Verify visual feedback accurately reflects current state\n5. Test responsiveness on different screen sizes",
+      "priority": "medium",
+      "dependencies": [
+        2,
+        6
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 8,
+      "title": "Usage Tracking & Paywall System",
+      "description": "Implement the usage tracking system that monitors conversation time and triggers the paywall after 30 seconds.",
+      "details": "1. Create a `PaywallModal.js` component:\n   ```jsx\n   import { useState } from 'react';\n   import { loadStripe } from '@stripe/stripe-js';\n   \n   const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);\n   \n   const PaywallModal = ({ isOpen, onClose, onPaymentSuccess }) => {\n     const [loading, setLoading] = useState(false);\n     \n     const handleCheckout = async () => {\n       setLoading(true);\n       \n       try {\n         // In a real implementation, this would create a Stripe checkout session\n         // For demo purposes, we'll simulate a successful payment\n         await new Promise(resolve => setTimeout(resolve, 1500));\n         onPaymentSuccess();\n       } catch (error) {\n         console.error('Payment error:', error);\n       } finally {\n         setLoading(false);\n       }\n     };\n     \n     if (!isOpen) return null;\n     \n     return (\n       <div className=\"paywall-modal\">\n         <div className=\"modal-content\">\n           <h2>Continue Talking with Your Pet Friend!</h2>\n           <p>You've used your free 30 seconds of pet conversation time.</p>\n           <p>For unlimited conversations, upgrade to premium for just $2.99/month!</p>\n           \n           <button \n             className=\"checkout-button\" \n             onClick={handleCheckout}\n             disabled={loading}\n           >\n             {loading ? 'Processing...' : 'Upgrade Now'}\n           </button>\n           \n           <button className=\"close-button\" onClick={onClose}>\n             Maybe Later\n           </button>\n         </div>\n       </div>\n     );\n   };\n   \n   export default PaywallModal;\n   ```\n2. Enhance the main application component to track usage and trigger the paywall:\n   ```jsx\n   // Add to Home component state\n   const [paywallTriggered, setPaywallTriggered] = useState(false);\n   const [isPremium, setIsPremium] = useState(false);\n   \n   // Add useEffect to check playback time\n   useEffect(() => {\n     if (!isPremium && totalPlaybackTime >= 30 && !paywallTriggered) {\n       setPaywallTriggered(true);\n       \n       // Pause current audio if playing\n       if (audioRef.current) {\n         audioRef.current.pause();\n       }\n     }\n   }, [totalPlaybackTime, isPremium, paywallTriggered]);\n   \n   const handlePaymentSuccess = () => {\n     setIsPremium(true);\n     setPaywallTriggered(false);\n     \n     // Resume audio if it was playing\n     if (audioRef.current) {\n       audioRef.current.play();\n     }\n   };\n   \n   // Add PaywallModal to the JSX\n   <PaywallModal \n     isOpen={paywallTriggered} \n     onClose={() => setPaywallTriggered(false)}\n     onPaymentSuccess={handlePaymentSuccess}\n   />\n   ```\n3. Implement session-based tracking to persist usage across page refreshes\n4. Add visual indicator for remaining free time\n5. Implement Stripe checkout integration for actual payments",
+      "testStrategy": "1. Test usage tracking accuracy with various conversation durations\n2. Verify paywall triggers exactly at 30-second threshold\n3. Test payment flow with Stripe test mode\n4. Verify audio pauses when paywall appears and resumes after payment\n5. Test session persistence across page refreshes",
+      "priority": "medium",
+      "dependencies": [
+        7
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 9,
+      "title": "Responsive Design and UI Polish",
+      "description": "Implement responsive design and visual polish to ensure the application works well on various devices and provides a child-friendly interface.",
+      "details": "1. Create a global CSS file with responsive styles:\n   ```css\n   /* styles/globals.css */\n   :root {\n     --primary-color: #4a86e8;\n     --secondary-color: #ff9900;\n     --background-color: #f0f8ff;\n     --text-color: #333333;\n     --button-size: 80px;\n   }\n   \n   body {\n     font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;\n     background-color: var(--background-color);\n     color: var(--text-color);\n     margin: 0;\n     padding: 0;\n   }\n   \n   .app-container {\n     max-width: 800px;\n     margin: 0 auto;\n     padding: 20px;\n     text-align: center;\n   }\n   \n   h1 {\n     color: var(--primary-color);\n     font-size: 2.5rem;\n   }\n   \n   .mascot-section {\n     height: 50vh;\n     min-height: 300px;\n     margin-bottom: 20px;\n     border-radius: 20px;\n     overflow: hidden;\n     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);\n   }\n   \n   .mic-button {\n     width: var(--button-size);\n     height: var(--button-size);\n     border-radius: 50%;\n     background-color: var(--primary-color);\n     color: white;\n     border: none;\n     font-size: 1.2rem;\n     cursor: pointer;\n     transition: all 0.3s ease;\n     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);\n   }\n   \n   .mic-button.recording {\n     background-color: var(--secondary-color);\n     transform: scale(1.1);\n     box-shadow: 0 5px 20px rgba(255, 153, 0, 0.4);\n   }\n   \n   .transcript {\n     margin-top: 20px;\n     padding: 10px;\n     background-color: white;\n     border-radius: 10px;\n     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);\n   }\n   \n   .processing-indicator {\n     margin-top: 10px;\n     font-style: italic;\n     color: var(--primary-color);\n   }\n   \n   .paywall-modal {\n     position: fixed;\n     top: 0;\n     left: 0;\n     width: 100%;\n     height: 100%;\n     background-color: rgba(0, 0, 0, 0.7);\n     display: flex;\n     justify-content: center;\n     align-items: center;\n     z-index: 1000;\n   }\n   \n   .modal-content {\n     background-color: white;\n     padding: 30px;\n     border-radius: 20px;\n     max-width: 500px;\n     width: 90%;\n     text-align: center;\n     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);\n   }\n   \n   .checkout-button {\n     background-color: var(--primary-color);\n     color: white;\n     border: none;\n     padding: 12px 24px;\n     border-radius: 30px;\n     font-size: 1.2rem;\n     margin-top: 20px;\n     cursor: pointer;\n     transition: all 0.3s ease;\n   }\n   \n   .close-button {\n     background-color: transparent;\n     color: var(--text-color);\n     border: none;\n     padding: 10px;\n     margin-top: 10px;\n     cursor: pointer;\n   }\n   \n   /* Responsive adjustments */\n   @media (max-width: 768px) {\n     h1 {\n       font-size: 2rem;\n     }\n     \n     .mascot-section {\n       height: 40vh;\n     }\n     \n     .mic-button {\n       --button-size: 70px;\n     }\n   }\n   \n   @media (max-width: 480px) {\n     h1 {\n       font-size: 1.8rem;\n     }\n     \n     .mascot-section {\n       height: 35vh;\n     }\n     \n     .mic-button {\n       --button-size: 60px;\n     }\n   }\n   ```\n2. Optimize layout for tablet landscape orientation as primary target\n3. Implement child-friendly UI elements with large touch targets\n4. Add visual feedback animations for different states\n5. Ensure proper contrast and readability for text elements",
+      "testStrategy": "1. Test responsive design across various device sizes (mobile, tablet, desktop)\n2. Verify touch targets are appropriately sized for children\n3. Test color contrast for accessibility\n4. Verify animations and transitions are smooth\n5. Test with actual children to validate usability and engagement",
+      "priority": "low",
+      "dependencies": [
+        7
+      ],
+      "status": "pending",
+      "subtasks": []
+    },
+    {
+      "id": 10,
+      "title": "Error Handling and Performance Optimization",
+      "description": "Implement comprehensive error handling, loading states, and performance optimizations to ensure a smooth user experience.",
+      "details": "1. Create an `ErrorBoundary` component for graceful error handling:\n   ```jsx\n   import { Component } from 'react';\n   \n   class ErrorBoundary extends Component {\n     constructor(props) {\n       super(props);\n       this.state = { hasError: false, error: null };\n     }\n     \n     static getDerivedStateFromError(error) {\n       return { hasError: true, error };\n     }\n     \n     componentDidCatch(error, errorInfo) {\n       console.error('Error caught by boundary:', error, errorInfo);\n     }\n     \n     render() {\n       if (this.state.hasError) {\n         return (\n           <div className=\"error-container\">\n             <h2>Oops! Something went wrong</h2>\n             <p>Our pet friend is taking a little nap. Please try again later!</p>\n             <button onClick={() => window.location.reload()}>Refresh Page</button>\n           </div>\n         );\n       }\n       \n       return this.props.children;\n     }\n   }\n   \n   export default ErrorBoundary;\n   ```\n2. Implement loading states and fallbacks:\n   ```jsx\n   // Add to main component\n   const [loading, setLoading] = useState(true);\n   \n   useEffect(() => {\n     // Simulate asset loading\n     const timer = setTimeout(() => setLoading(false), 1500);\n     return () => clearTimeout(timer);\n   }, []);\n   \n   if (loading) {\n     return (\n       <div className=\"loading-container\">\n         <div className=\"loading-spinner\"></div>\n         <p>Your pet friend is waking up...</p>\n       </div>\n     );\n   }\n   ```\n3. Implement performance optimizations:\n   - Add React.memo for pure components\n   - Implement proper dependency arrays in useEffect hooks\n   - Add dynamic imports for heavy components\n   - Optimize 3D model loading with suspense and fallbacks\n4. Add offline capability with service worker:\n   ```javascript\n   // In _app.js\n   useEffect(() => {\n     if ('serviceWorker' in navigator) {\n       window.addEventListener('load', () => {\n         navigator.serviceWorker.register('/sw.js').then(\n           registration => console.log('ServiceWorker registration successful'),\n           error => console.log('ServiceWorker registration failed: ', error)\n         );\n       });\n     }\n   }, []);\n   ```\n5. Implement analytics and error tracking:\n   ```javascript\n   // Create utils/analytics.js\n   export const trackEvent = (eventName, properties = {}) => {\n     // In a real app, this would send to an analytics service\n     console.log('Event tracked:', eventName, properties);\n   };\n   \n   export const trackError = (error, context = {}) => {\n     console.error('Error tracked:', error, context);\n   };\n   ```",
+      "testStrategy": "1. Test error boundary with simulated component errors\n2. Verify loading states display correctly during initialization\n3. Measure and compare performance before and after optimizations\n4. Test offline functionality with network disconnection\n5. Verify error tracking captures and reports issues correctly",
+      "priority": "low",
+      "dependencies": [
+        7,
+        8,
+        9
+      ],
+      "status": "pending",
+      "subtasks": []
+    }
+  ]
+}

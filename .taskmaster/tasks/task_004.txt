@@ -1,0 +1,55 @@
+# Task ID: 4
+# Title: Text-to-Speech Integration with ElevenLabs
+# Status: pending
+# Dependencies: 3
+# Priority: high
+# Description: Extend the API route to convert GPT-4o text responses into high-quality speech using ElevenLabs TTS API.
+# Details:
+1. Enhance the `/pages/api/chat-to-audio.js` endpoint to include ElevenLabs TTS:
+   ```javascript
+   // After getting the text response from OpenAI
+   const response = completion.choices[0].message.content;
+   
+   // Convert text to speech using ElevenLabs
+   const elevenLabsResponse = await fetch(
+     `https://api.elevenlabs.io/v1/text-to-speech/${process.env.ELEVEN_VOICE_ID}`,
+     {
+       method: 'POST',
+       headers: {
+         'Content-Type': 'application/json',
+         'xi-api-key': process.env.ELEVENLABS_KEY,
+       },
+       body: JSON.stringify({
+         text: response,
+         model_id: 'eleven_monolingual_v1',
+         voice_settings: {
+           stability: 0.5,
+           similarity_boost: 0.75,
+         },
+       }),
+     }
+   );
+   
+   if (!elevenLabsResponse.ok) {
+     throw new Error(`ElevenLabs API error: ${elevenLabsResponse.statusText}`);
+   }
+   
+   const audioBuffer = await elevenLabsResponse.arrayBuffer();
+   const audioBase64 = Buffer.from(audioBuffer).toString('base64');
+   
+   return res.status(200).json({
+     text: response,
+     audio: audioBase64,
+   });
+   ```
+2. Configure audio quality settings for 44.1kHz MP3 output
+3. Implement proper error handling for TTS API failures
+4. Add caching mechanism for frequently used responses to reduce API calls
+5. Ensure consistent voice ID usage for character continuity
+
+# Test Strategy:
+1. Test TTS conversion with various text inputs
+2. Verify audio quality meets 44.1kHz specification
+3. Test error handling when ElevenLabs API is unavailable
+4. Measure response time for the complete text-to-speech pipeline
+5. Verify Base64 encoding works correctly for frontend playback

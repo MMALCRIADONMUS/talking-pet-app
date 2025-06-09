@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0",
+  "projectName": "talking-pet-app",
+  "description": "A Next.js application for a talking pet app",
+  "defaultPriority": "medium",
+  "categories": ["development", "testing", "deployment"],
+  "autoSave": true,
+  "maxTasks": 100,
+  "aiServices": {
+    "main": {
+      "provider": "anthropic",
+      "apiKey": "your_anthropic_api_key_here"
+    }
+  }
+}
